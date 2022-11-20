@@ -5,41 +5,40 @@ from rest_framework.response import Response
 from django.core.mail import send_mail
 from .permissions import IsAdminOrSuperUser, IsUserProfile, AuthorOrReadOnly
 
-from reviews.models import Review, Comment
-from .serializers import ReviewSerializer, CommentSerializer, UserSerializer
+from reviews.models import Review, Comment, Title
+from .serializers import ReviewSerializer, CommentSerializer, UserSerializer, TitleSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
 from users.models import User
 from django.contrib.auth.tokens import default_token_generator
 from .utils import ListEditViewSet
-from rest_framework.generics import RetrieveUpdateAPIView
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    # queryset = Review.objects.select_related('author')
-    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [AllowAny, AuthorOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, AuthorOrReadOnly]
+
+    def get_title(self):
+        return get_object_or_404(Title, pk=self.kwargs['title_id'])
+
+    def get_queryset(self):
+        return self.get_title().reviews.select_related('author', 'title')
 
     def perform_create(self, serializer):
-        author = serializer.validated_data.get('author')
-        serializer.save(
-            author=author, title=self.kwargs['title_id']
-        )
+        serializer.save(author=self.request.user, title_id=self.get_title().pk)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    # queryset = Comment.objects.select_related('author')
-    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [AllowAny, AuthorOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, AuthorOrReadOnly]
 
     def get_review(self):
-        return get_object_or_404(Review, pk=self.kwargs['review_id'])
+        return get_object_or_404(
+            Review, pk=self.kwargs['review_id'], title=self.kwargs['title_id']
+        )
 
     def get_queryset(self):
-        # return self.get_review().comments.select_related('author')
-        return self.get_review().comments.all()
+        return self.get_review().comments.select_related('author', 'review')
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user,
@@ -146,3 +145,12 @@ class UserVerifyToken(views.APIView):
         return Response({'error': 'Введен неправильный код'}, status=400)
 
 
+# ------------------------------- TEST ----------------------------------------
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+
+
+# ------------------------------- TEST ----------------------------------------

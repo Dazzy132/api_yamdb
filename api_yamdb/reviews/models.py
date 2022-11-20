@@ -115,21 +115,18 @@ class Review(models.Model):
     """Модель отзывов"""
     text = models.TextField('Текст отзыва',)
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
-
     author = models.ForeignKey(
         User,
         related_name='reviews',
         on_delete=models.CASCADE,
         verbose_name='Автор',
     )
-
     title = models.ForeignKey(
         Title,
         related_name='reviews',
         verbose_name='Произведение',
         on_delete=models.CASCADE,
     )
-
     score = models.PositiveSmallIntegerField(
         'Оценка',
         default=0,
@@ -148,14 +145,12 @@ class Comment(models.Model):
     """Модель комментариев"""
     text = models.TextField('Комментарий',)
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
-
     author = models.ForeignKey(
         User,
         related_name='comments',
         on_delete=models.CASCADE,
         verbose_name='Автор',
     )
-
     review = models.ForeignKey(
         Review,
         related_name='comments',
