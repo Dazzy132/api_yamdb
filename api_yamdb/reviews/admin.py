@@ -1,7 +1,7 @@
 from django.contrib import admin
 from typing import NamedTuple
 
-from .models import Categories, Genres, Title
+from .models import Categories, Genres, Title, GenreTitle
 
 
 class Fields(NamedTuple):
@@ -35,3 +35,9 @@ class TitlesAdmin(admin.ModelAdmin):
     ordering: Fields = ['name', 'year', 'pub_date', 'category']
     list_per_page: int = 10
     search_fields: Fields = ['name']
+
+
+@admin.register(GenreTitle)
+class GenreTitleAdmin(admin.ModelAdmin):
+    """Регистрация в admin модели Genres"""
+    list_display: Fields = ['title', 'genre']

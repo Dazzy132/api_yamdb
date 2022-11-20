@@ -3,7 +3,7 @@ import csv
 import os
 
 from api_yamdb.settings import BASE_DIR
-from reviews.models import Categories, Title, Genres
+from reviews.models import Categories, Title, Genres, GenreTitle
 
 
 class Command(BaseCommand):
@@ -14,7 +14,7 @@ class Command(BaseCommand):
         Command.category_update()
         Command.genre_update()
         Command.title_update()
-        # Command.genre_title()
+        Command.genre_title()
         # Command.comments_update()
         # Command.reviews_update()
         # Command.users_update()
@@ -53,15 +53,16 @@ class Command(BaseCommand):
                 genre = Genres(id=id, name=name, slug=slug)
                 genre.save()
 
-    # функция genre_title не работает, жду ответа наставника
-    """def genre_title():
+    def genre_title():
+        """Добавление данных для модели GenreTitle"""  
         with open(os.path.join(BASE_DIR, 'static/data/genre_title.csv'), encoding='utf-8') as csv_file:
             csv_reader = csv.DictReader(csv_file, delimiter=',')
             for row in csv_reader:
+                id = row['id']
                 title_id = row['title_id']
                 genre_id = row['genre_id']
-                title = Title(id=title_id, genre_id=genre_id)
-                title.save()"""
+                title = GenreTitle(id=id, title_id=title_id, genre_id=genre_id)
+                title.save()
 
     # def comments_update():
         # Добавление данных для модели Comment"""  

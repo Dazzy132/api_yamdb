@@ -24,7 +24,7 @@ class Categories(models.Model):
 
 
 class Genres(models.Model):
-    """Жанры для произведений"""
+    """Модель для жанров"""
     ROCK: str = 'RO'
     FANTSY: str = 'FA'
     ARTHOUSE: str = 'AR'
@@ -90,3 +90,24 @@ class Title(models.Model):
     class Meta:
         verbose_name: str = 'Произведение'
         verbose_name_plural: str = 'Произведения'
+
+
+class GenreTitle(models.Model):
+    """Жанры для произведений"""
+    id = models.AutoField(primary_key=True)
+    title = models.ForeignKey(
+        Title,
+        blank=False,
+        null=True,
+        on_delete=models.SET_NULL
+    )
+    genre = models.ForeignKey(
+        Genres,
+        blank=False,
+        null=True,
+        on_delete=models.SET_NULL
+    )
+
+    class Meta:
+        verbose_name: str = 'Жанр и Прозведение'
+        verbose_name_plural: str = 'Жанры и произведения'
