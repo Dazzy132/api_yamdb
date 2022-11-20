@@ -1,10 +1,22 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from reviews.models import Comment, Review
+from reviews.models import Comment, Review, Title, Genres, Categories
 
 User = get_user_model()
 
+from rest_framework.relations import SlugRelatedField
+from rest_framework.validators import UniqueTogetherValidator
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Group"""
+
+    class Meta:
+        model = Genres
+        fields = ('slug', 'name')
+        read_only_fields = ('name', 'slug',)
+        
 
 class CommentSerializer(serializers.ModelSerializer):
     # author = serializers.SlugRelatedField(
@@ -43,12 +55,4 @@ class UserSerializer(serializers.ModelSerializer):
             'username', 'email', 'first_name', 'last_name', 'bio', 'role'
         )
 
-# class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-#     """Кастомная работа токена"""
-#     username_field = User.EMAIL_FIELD
-#
-#     @classmethod
-#     def get_token(cls, user):
-#         token = super().get_token(user)
-#         token['email'] = user.email
-#         return token
+

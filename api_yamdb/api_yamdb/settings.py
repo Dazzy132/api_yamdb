@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from datetime import timedelta
@@ -25,7 +26,7 @@ INSTALLED_APPS = [
 
     'rest_framework_simplejwt',
     'rest_framework',
-
+    'rest_framework_simplejwt',
     'api.apps.ApiConfig',
     'reviews.apps.ReviewsConfig',
     'users.apps.UsersConfig',
@@ -107,7 +108,6 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'),)
 
-# Изменение модели пользователя на собственную
 AUTH_USER_MODEL = 'users.User'
 
 REST_FRAMEWORK = {

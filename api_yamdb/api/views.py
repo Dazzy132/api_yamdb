@@ -146,4 +146,3 @@ class UserVerifyToken(views.APIView):
         return Response({'error': 'Введен неправильный код'}, status=400)
 
 
-
