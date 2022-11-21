@@ -3,10 +3,12 @@ from rest_framework.decorators import api_view, action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 from django.core.mail import send_mail
+from rest_framework import filters
 from .permissions import IsAdminOrSuperUser, IsUserProfile, AuthorOrReadOnly
+from rest_framework.pagination import PageNumberPagination
 
-from reviews.models import Review, Comment, Genres, Title, GenreTitle, Category
-from .serializers import ReviewSerializer, CommentSerializer, UserSerializer, GenreSerializer
+from reviews.models import Review, Comment, Genre, Title, GenreTitle, Category
+from .serializers import ReviewSerializer, CommentSerializer, UserSerializer, GenreSerializer, TitleSerializer, CategorySerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
 from users.models import User
@@ -84,13 +86,6 @@ class UserProfileViewSet(ListEditViewSet):
         return user
 
 
-class GenreViewSet(viewsets.ReadOnlyModelViewSet):
-    """Viewset для модели Genres"""
-    queryset = Genres.objects.all()
-    serializer_class = GenreSerializer
-    # permission_classes = []
-
-
 class UserAuthViewSet(generics.CreateAPIView):
     """ViewSet для работы с созданием пользователей (или созданными через
     админ права пользователями) для их полноценной регистрации через отправки
@@ -156,3 +151,41 @@ class UserVerifyToken(views.APIView):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    """Viewset для модели Genre"""
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ('name',)
+    # необходимо переопределить пермишены
+    permission_classes = [IsAdminOrSuperUser]
+    lookup_field = 'slug'
+    pagination_class = PageNumberPagination
+    http_method_names = ['get', 'post', 'delete']
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    """Viewset для модели Title"""
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+    filter_backends = [filters.SearchFilter]
+    # permission_classes = []
+    search_fields = ('name',)
+    lookup_field = 'slug'
+    pagination_class = PageNumberPagination
+    http_method_names = ['get', 'post', 'delete']
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    """Viewset для модели Genre"""
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    filter_backends = [filters.SearchFilter]  
+    search_fields = ('name',)
+    # необходимо переопределить пермишены
+    permission_classes = [IsAdminOrSuperUser]
+    lookup_field = 'slug'
+    pagination_class = PageNumberPagination
+    http_method_names = ['get', 'post', 'delete']

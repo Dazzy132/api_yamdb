@@ -23,7 +23,7 @@ class Category(models.Model):
         verbose_name_plural: str = 'Категории'
 
 
-class Genres(models.Model):
+class Genre(models.Model):
     """Модель для жанров"""
     slug = models.SlugField(
         'Адрес жанра произведения',
@@ -54,11 +54,8 @@ class Title(models.Model):
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now=True)
     genre = models.ManyToManyField(
-        Genres,
-        verbose_name='Жанр произведения',
-        blank=True,
-        related_name='titles',
-        help_text='Выберите жанр произведения'
+        Genre,
+        through="GenreTitle"
     )
     category = models.ForeignKey(
         Category,
@@ -66,7 +63,6 @@ class Title(models.Model):
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
-        related_name='titles',
         help_text='Выберите категорию произведения'
     )
 
@@ -87,7 +83,7 @@ class GenreTitle(models.Model):
         on_delete=models.SET_NULL
     )
     genre = models.ForeignKey(
-        Genres,
+        Genre,
         blank=False,
         null=True,
         on_delete=models.SET_NULL

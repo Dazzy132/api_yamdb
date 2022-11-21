@@ -17,7 +17,7 @@ class User(AbstractUser):
     email = models.EmailField(_('email address'), blank=False, unique=True)
     bio = models.TextField('Биография', blank=True)
     role = models.CharField(
-        'Группа', max_length=20, choices=ROLE_USER_CHOICES, default=USER
+        'Группа', max_length=150, choices=ROLE_USER_CHOICES, default=USER
     )
 
     class Meta:
