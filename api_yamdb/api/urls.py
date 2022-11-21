@@ -1,22 +1,38 @@
-"""
-В файле проведена регистрация роутера и JWT-токена для API V1.
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
-Зарегистрированы пути для базовых моделей Post, Group, Follow, Comment.
+from .views import ReviewViewSet, CommentViewSet, UserViewSet, UserAuthViewSet, UserVerifyToken, UserProfileViewSet, GenreViewSet
 
-"""
+router = DefaultRouter()
 
+router.register(
+    r'users/me',
+    UserProfileViewSet,
+    basename='user-profile'
+)
 
-from django.urls import include, path
-from rest_framework import routers
+router.register(
+    r'users',
+    UserViewSet
+)
 
-from api.views import GenreViewSet
+router.register(
+    r'titles/(?P<title_id>\d+)/reviews',
+    ReviewViewSet
+)
 
-app_name = 'djoser'
+router.register(
+    r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
+    CommentViewSet
+)
+
+router.register(
+    r'genres',
+    GenreViewSet
+)
 
 urlpatterns = [
-    path('v1/', include('djoser.urls')),
-    path('v1/', include('djoser.urls.jwt')),
+    path('v1/', include(router.urls)),
+    path('v1/auth/signup/', UserAuthViewSet.as_view()),
+    path('v1/auth/token/', UserVerifyToken.as_view()),
 ]
-
-router_v1 = routers.DefaultRouter()
-router_v1.register(r'v1/genres', GenreViewSet)
