@@ -5,7 +5,6 @@ from users.models import User
 
 class Categories(models.Model):
     """Категории для произведений"""
-    id = models.AutoField(primary_key=True)
     name = models.CharField(
         'Категория произведения',
         max_length=200,
@@ -107,7 +106,7 @@ class GenreTitle(models.Model):
     )
 
     class Meta:
-        verbose_name: str = 'Жанр и Прозведение'
+        verbose_name: str = 'Жанр и Произведение'
         verbose_name_plural: str = 'Жанры и произведения'
 
 

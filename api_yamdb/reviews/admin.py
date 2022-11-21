@@ -1,7 +1,7 @@
 from django.contrib import admin
 from typing import NamedTuple
 
-from .models import Categories, Genres, Title, GenreTitle
+from .models import Categories, Genres, Title, GenreTitle, Comment, Review
 
 
 class Fields(NamedTuple):
@@ -13,6 +13,18 @@ class Fields(NamedTuple):
     category: str
     genre: str
     slug: str
+
+
+class CommentsInline(admin.TabularInline):
+    model = Comment
+    extra = 1
+    readonly_fields = ('author',)
+
+
+class ReviewsInline(admin.TabularInline):
+    model = Review
+    extra = 1
+    readonly_fields = ('author',)
 
 
 @admin.register(Categories)
@@ -35,15 +47,14 @@ class TitlesAdmin(admin.ModelAdmin):
     ordering: Fields = ['name', 'year', 'pub_date', 'category']
     list_per_page: int = 10
     search_fields: Fields = ['name']
-
-from .models import Comment, Review
+    inlines = [ReviewsInline]
 
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     """Модель комментариев в админке"""
-    list_display = ('text', 'pub_date')
-    readonly_fields = ('pub_date',)
+    list_display = ('text', 'author', 'pub_date')
+    readonly_fields = ('pub_date', 'author')
     search_fields = ('text',)
     save_as = True
 
@@ -51,14 +62,11 @@ class CommentAdmin(admin.ModelAdmin):
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
     """Модель отзывов в админке"""
-    list_display = ('text', 'pub_date')
-    readonly_fields = ('pub_date',)
+    list_display = ('text', 'author', 'pub_date')
+    readonly_fields = ('pub_date', 'author')
     search_fields = ('text',)
     save_as = True
+    inlines = [CommentsInline]
 
 
-# @admin.register(Rating)
-# class ReviewAdmin(admin.ModelAdmin):
-#     """Модель отзывов в админке"""
-#     list_display = ('score',)
 
