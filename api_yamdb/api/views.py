@@ -9,7 +9,7 @@ from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from http import HTTPStatus
 
-from reviews.models import Comment, Review
+from reviews.models import Comment, Review, Title
 from users.models import User
 
 from .permissions import AuthorOrReadOnly, IsAdminOrSuperUser, IsUserProfile
@@ -17,30 +17,30 @@ from .serializers import CommentSerializer, ReviewSerializer, TokenSerializer, U
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    # queryset = Review.objects.select_related('author')
-    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = (AuthorOrReadOnly,)
 
+    def get_title(self):
+        return get_object_or_404(Title, pk=self.kwargs['title_id'])
+
+    def get_queryset(self):
+        return self.get_title().reviews.select_related('author', 'title')
+
     def perform_create(self, serializer):
-        author = serializer.validated_data.get('author')
-        serializer.save(
-            author=author, title=self.kwargs['title_id']
-        )
+        serializer.save(author=self.request.user, title_id=self.get_title().pk)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    # queryset = Comment.objects.select_related('author')
-    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = (AuthorOrReadOnly,)
 
     def get_review(self):
-        return get_object_or_404(Review, pk=self.kwargs['review_id'])
+        return get_object_or_404(
+            Review, pk=self.kwargs['review_id'], title=self.kwargs['title_id']
+        )
 
     def get_queryset(self):
-        # return self.get_review().comments.select_related('author')
-        return self.get_review().comments.all()
+        return self.get_review().comments.select_related('author', 'review')
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user,

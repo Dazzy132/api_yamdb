@@ -3,12 +3,11 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from users.models import User
 
 
-class Categories(models.Model):
+class Category(models.Model):
     """Категории для произведений"""
-    id = models.AutoField(primary_key=True)
     name = models.CharField(
         'Категория произведения',
-        max_length=200,
+        max_length=400,
         help_text='Выберите категорию произведения'
     )
     slug = models.SlugField(
@@ -26,25 +25,13 @@ class Categories(models.Model):
 
 class Genres(models.Model):
     """Модель для жанров"""
-    ROCK: str = 'RO'
-    FANTSY: str = 'FA'
-    ARTHOUSE: str = 'AR'
-    OUTOFGENRE: str = 'OU'
-    GENRES_CHOICES: tuple = [
-        (ROCK, 'Rock'),
-        (FANTSY, 'Fantasy'),
-        (ARTHOUSE, 'Arthouse'),
-        (OUTOFGENRE, 'Out Of Genre'),
-    ]
-    # Скорее всего, надо убрать choices
     slug = models.SlugField(
-        max_length=2,
-        choices=GENRES_CHOICES,
-        default=OUTOFGENRE,
+        'Адрес жанра произведения',
+        unique=True
     )
     name = models.CharField(
         'Жанр произведения',
-        max_length=200,
+        max_length=200,       
         help_text='Выберите жанр произведения'
     )
 
@@ -58,8 +45,8 @@ class Genres(models.Model):
 
 class Title(models.Model):
     """Модель для произведений"""
-    name = models.TextField()
-    year = models.IntegerField(
+    name = models.CharField(max_length=200)
+    year = models.PositiveSmallIntegerField(
         'Год создания произведения',
         blank=False,
         default=2022,
@@ -70,16 +57,16 @@ class Title(models.Model):
         Genres,
         verbose_name='Жанр произведения',
         blank=True,
-        related_name='genre',
+        related_name='titles',
         help_text='Выберите жанр произведения'
     )
     category = models.ForeignKey(
-        Categories,
+        Category,
         verbose_name='Категория произведения',
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
-        related_name='category',
+        related_name='titles',
         help_text='Выберите категорию произведения'
     )
 
@@ -115,21 +102,18 @@ class Review(models.Model):
     """Модель отзывов"""
     text = models.TextField('Текст отзыва',)
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
-
     author = models.ForeignKey(
         User,
         related_name='reviews',
         on_delete=models.CASCADE,
         verbose_name='Автор',
     )
-
     title = models.ForeignKey(
         Title,
         related_name='reviews',
         verbose_name='Произведение',
         on_delete=models.CASCADE,
     )
-
     score = models.PositiveSmallIntegerField(
         'Оценка',
         default=0,
@@ -148,14 +132,12 @@ class Comment(models.Model):
     """Модель комментариев"""
     text = models.TextField('Комментарий',)
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
-
     author = models.ForeignKey(
         User,
         related_name='comments',
         on_delete=models.CASCADE,
         verbose_name='Автор',
     )
-
     review = models.ForeignKey(
         Review,
         related_name='comments',
