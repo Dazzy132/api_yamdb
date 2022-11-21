@@ -1,19 +1,22 @@
-from rest_framework import generics, mixins, viewsets, views
-from rest_framework.decorators import action, api_view 
-from rest_framework.generics import RetrieveUpdateAPIView
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly 
-from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
+from http import HTTPStatus
+
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from http import HTTPStatus
-
-from reviews.models import Comment, Review, Title
+from rest_framework import generics, mixins, viewsets
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from reviews.models import Review, Title
 from users.models import User
 
 from .permissions import AuthorOrReadOnly, IsAdminOrSuperUser, IsUserProfile
-from .serializers import CommentSerializer, ReviewSerializer, TokenSerializer, UserSerializer
+from .serializers import (
+    CommentSerializer,
+    ReviewSerializer,
+    TokenSerializer,
+    UserSerializer,
+)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -43,8 +46,10 @@ class CommentViewSet(viewsets.ModelViewSet):
         return self.get_review().comments.select_related('author', 'review')
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user,
-                        review_id=self.get_review().pk)
+        serializer.save(
+            author=self.request.user,
+            review_id=self.get_review().pk
+        )
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -75,10 +80,11 @@ class UserViewSet(viewsets.ModelViewSet):
     #     return [permission() for permission in permission_classes]
 
 
-class UserProfileViewSet(viewsets.GenericViewSet,
-                         mixins.RetrieveModelMixin,
-                         mixins.UpdateModelMixin):
+class UserProfileViewSet(
+    viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.UpdateModelMixin
+):
     """Редактирование профиля."""
+
     serializer_class = UserSerializer
     permission_classes = (IsUserProfile,)
 
@@ -91,6 +97,7 @@ class UserAuthViewSet(generics.CreateAPIView):
     """ViewSet для работы с созданием пользователей (или созданными через
     админ права пользователями) для их полноценной регистрации через отправки
     кода на почту"""
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (AllowAny,)
@@ -111,10 +118,7 @@ class UserAuthViewSet(generics.CreateAPIView):
         else:
             user = user[0]
         confirmation_code = default_token_generator.make_token(
-            get_object_or_404(
-                User,
-                username=username,
-                email=email)
+            get_object_or_404(User, username=username, email=email)
         )
         send_mail(
             'Код подтверждения',
@@ -124,16 +128,14 @@ class UserAuthViewSet(generics.CreateAPIView):
             fail_silently=False,
         )
         return Response(
-            {
-                'username': username,
-                'email': email
-            },
+            {'username': username, 'email': email},
             status=HTTPStatus.OK
         )
 
 
 class UserVerifyToken(generics.CreateAPIView):
     """ViewSet для выдачи JWT токенов"""
+
     queryset = User.objects.all()
     serializer_class = TokenSerializer
     permission_classes = (AllowAny,)
@@ -141,16 +143,16 @@ class UserVerifyToken(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = TokenSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(serializer.errors, status=400)
-        user = get_object_or_404(
-            User,
-            username=request.data.get('username')
-        )
+            return Response(serializer.errors, status=HTTPStatus.BAD_REQUEST)
+        user = get_object_or_404(User, username=request.data.get('username'))
         confirmation_code = request.data.get('confirmation_code')
 
         if default_token_generator.check_token(user, confirmation_code):
             return Response(
                 {'token': str(RefreshToken.for_user(user).access_token)},
-                status=200
+                status=HTTPStatus.OK
             )
-        return Response({'error': 'Введен неправильный код'}, status=400)
+        return Response(
+            {'error': 'Введен неправильный код'},
+            status=HTTPStatus.BAD_REQUEST
+        )

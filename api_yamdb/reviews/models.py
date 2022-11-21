@@ -1,19 +1,17 @@
-from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
 from users.models import User
 
 
 class Category(models.Model):
     """Категории для произведений"""
+
     name = models.CharField(
         'Категория произведения',
         max_length=400,
-        help_text='Выберите категорию произведения'
+        help_text='Выберите категорию произведения',
     )
-    slug = models.SlugField(
-        'Адрес категории произведения',
-        unique=True
-    )
+    slug = models.SlugField('Адрес категории произведения', unique=True)
 
     def __str__(self) -> str:
         return self.slug
@@ -25,13 +23,11 @@ class Category(models.Model):
 
 class Genres(models.Model):
     """Модель для жанров"""
-    slug = models.SlugField(
-        'Адрес жанра произведения',
-        unique=True
-    )
+
+    slug = models.SlugField('Адрес жанра произведения', unique=True)
     name = models.CharField(
         'Жанр произведения',
-        max_length=200,       
+        max_length=200,
         help_text='Выберите жанр произведения'
     )
 
@@ -45,12 +41,13 @@ class Genres(models.Model):
 
 class Title(models.Model):
     """Модель для произведений"""
+
     name = models.CharField(max_length=200)
     year = models.PositiveSmallIntegerField(
         'Год создания произведения',
         blank=False,
         default=2022,
-        validators=[MaxValueValidator(2022)]
+        validators=[MaxValueValidator(2022)],
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now=True)
     genre = models.ManyToManyField(
@@ -58,7 +55,7 @@ class Title(models.Model):
         verbose_name='Жанр произведения',
         blank=True,
         related_name='titles',
-        help_text='Выберите жанр произведения'
+        help_text='Выберите жанр произведения',
     )
     category = models.ForeignKey(
         Category,
@@ -67,7 +64,7 @@ class Title(models.Model):
         null=True,
         on_delete=models.SET_NULL,
         related_name='titles',
-        help_text='Выберите категорию произведения'
+        help_text='Выберите категорию произведения',
     )
 
     def __str__(self) -> str:
@@ -80,6 +77,7 @@ class Title(models.Model):
 
 class GenreTitle(models.Model):
     """Жанры для произведений"""
+
     title = models.ForeignKey(
         Title,
         blank=False,
@@ -100,7 +98,10 @@ class GenreTitle(models.Model):
 
 class Review(models.Model):
     """Модель отзывов"""
-    text = models.TextField('Текст отзыва',)
+
+    text = models.TextField(
+        'Текст отзыва',
+    )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     author = models.ForeignKey(
         User,
@@ -130,7 +131,10 @@ class Review(models.Model):
 
 class Comment(models.Model):
     """Модель комментариев"""
-    text = models.TextField('Комментарий',)
+
+    text = models.TextField(
+        'Комментарий',
+    )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     author = models.ForeignKey(
         User,

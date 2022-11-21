@@ -1,8 +1,5 @@
 from rest_framework import serializers
-from rest_framework.relations import SlugRelatedField
-from rest_framework.validators import UniqueTogetherValidator
-
-from reviews.models import Category, Comment, Genres, Review, Title
+from reviews.models import Comment, Genres, Review
 from users.models import User
 
 
@@ -12,12 +9,16 @@ class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genres
         fields = ('slug', 'name')
-        read_only_fields = ('name', 'slug',)
+        read_only_fields = (
+            'name',
+            'slug',
+        )
 
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        slug_field='username', read_only=True
+        slug_field='username',
+        read_only=True
     )
 
     class Meta:
@@ -28,7 +29,8 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        slug_field='username', read_only=True
+        slug_field='username',
+        read_only=True
     )
 
     class Meta:
@@ -38,7 +40,6 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     def validate_username(self, username):
         if username == 'me':
             raise serializers.ValidationError(
@@ -54,9 +55,12 @@ class UserSerializer(serializers.ModelSerializer):
 class TokenSerializer(serializers.ModelSerializer):
     confirmation_code = serializers.CharField()
     username = serializers.SlugRelatedField(
-        queryset=User.objects.all(),
-        slug_field='username')
+        queryset=User.objects.all(), slug_field='username'
+    )
 
     class Meta:
         model = User
-        fields = ('username', 'confirmation_code',)
+        fields = (
+            'username',
+            'confirmation_code',
+        )
