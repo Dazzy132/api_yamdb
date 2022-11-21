@@ -20,7 +20,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     # queryset = Review.objects.select_related('author')
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = (AllowAny, AuthorOrReadOnly,)
+    permission_classes = (AuthorOrReadOnly,)
 
     def perform_create(self, serializer):
         author = serializer.validated_data.get('author')
@@ -33,7 +33,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     # queryset = Comment.objects.select_related('author')
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = (AllowAny, AuthorOrReadOnly,)
+    permission_classes = (AuthorOrReadOnly,)
 
     def get_review(self):
         return get_object_or_404(Review, pk=self.kwargs['review_id'])
