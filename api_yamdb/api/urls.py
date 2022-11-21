@@ -28,16 +28,6 @@ router.register(
     basename='comments'
 )
 
-# ------------------------------- TEST ----------------------------------------
-
-router.register(
-    r'titles',
-    TitleViewSet
-)
-
-# ------------------------------- TEST ----------------------------------------
-
-
 urlpatterns = [
     path('v1/', include(router.urls)),
     path('v1/auth/signup/', UserAuthViewSet.as_view()),

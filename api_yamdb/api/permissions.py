@@ -30,11 +30,3 @@ class IsUserProfile(BasePermission):
     def has_object_permission(self, request, view, obj):
         return (request.user.is_authenticated and request.user == obj
                 or request.user.role == 'admin' or request.user.is_superuser)
-
-
-# create: создание экземпляра;
-# retrieve: получение экземпляра;
-# list: получение списка экземпляров;
-# update: обновление экземпляра (все поля);
-# partial_update: обновление экземпляра (только выбранные поля);
-# destroy: удаление экземпляра.

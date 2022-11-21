@@ -143,14 +143,3 @@ class UserVerifyToken(views.APIView):
 
             return Response({'token': access_token}, status=200)
         return Response({'error': 'Введен неправильный код'}, status=400)
-
-
-# ------------------------------- TEST ----------------------------------------
-
-
-class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
-    serializer_class = TitleSerializer
-
-
-# ------------------------------- TEST ----------------------------------------

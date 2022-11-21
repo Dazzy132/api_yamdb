@@ -1,13 +1,15 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from reviews.models import Comment, Review, Title, Genres, Categories
+from reviews.models import Comment, Review, Title, Genres, Category
+from users.models import User
 
-User = get_user_model()
+from rest_framework.relations import SlugRelatedField
+from rest_framework.validators import UniqueTogetherValidator
 
 
 class GenreSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Group"""
+    """Сериализатор для модели Genres"""
 
     class Meta:
         model = Genres
@@ -51,15 +53,3 @@ class UserSerializer(serializers.ModelSerializer):
         fields = (
             'username', 'email', 'first_name', 'last_name', 'bio', 'role'
         )
-
-
-# ------------------------------- TEST ----------------------------------------
-
-
-class TitleSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = '__all__'
-        model = Title
-
-
-# ------------------------------- TEST ----------------------------------------

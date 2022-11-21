@@ -1,7 +1,7 @@
 from django.contrib import admin
 from typing import NamedTuple
 
-from .models import Categories, Genres, Title, GenreTitle, Comment, Review
+from .models import Category, Genres, Title, GenreTitle, Comment, Review
 
 
 class Fields(NamedTuple):
@@ -27,9 +27,9 @@ class ReviewsInline(admin.TabularInline):
     readonly_fields = ('author',)
 
 
-@admin.register(Categories)
-class CategoriesAdmin(admin.ModelAdmin):
-    """Регистрация в admin модели Categories"""
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    """Регистрация в admin модели Category"""
     list_display: Fields = ['name', 'slug']
 
 
@@ -41,7 +41,7 @@ class GenresAdmin(admin.ModelAdmin):
 
 @admin.register(Title)
 class TitlesAdmin(admin.ModelAdmin):
-    """Регистрация в admin модели Titles"""
+    """Регистрация в admin модели Title"""
     list_display: Fields = ['name', 'year', 'pub_date', 'category']
     filter_horizontal: Fields = ['genre']
     ordering: Fields = ['name', 'year', 'pub_date', 'category']
@@ -53,8 +53,8 @@ class TitlesAdmin(admin.ModelAdmin):
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     """Модель комментариев в админке"""
-    list_display = ('text', 'author', 'pub_date')
-    readonly_fields = ('pub_date', 'author')
+    list_display = ('text', 'pub_date')
+    readonly_fields = ('pub_date',)
     search_fields = ('text',)
     save_as = True
 
@@ -62,11 +62,14 @@ class CommentAdmin(admin.ModelAdmin):
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
     """Модель отзывов в админке"""
-    list_display = ('text', 'author', 'pub_date')
-    readonly_fields = ('pub_date', 'author')
+    list_display = ('text', 'pub_date')
+    readonly_fields = ('pub_date',)
     search_fields = ('text',)
     save_as = True
     inlines = [CommentsInline]
 
 
-
+@admin.register(GenreTitle)
+class GenreTitleAdmin(admin.ModelAdmin):
+    """Регистрация в admin модели Genres"""
+    list_display: Fields = ['title', 'genre']
