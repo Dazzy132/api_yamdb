@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from reviews.models import Comment, Genres, Review
@@ -79,7 +80,8 @@ class SelfUserSerializer(UserSerializer):
 class TokenSerializer(serializers.ModelSerializer):
     confirmation_code = serializers.CharField()
     username = serializers.SlugRelatedField(
-        queryset=User.objects.all(), slug_field='username'
+        queryset=User.objects.all(),
+        slug_field='username'
     )
 
     class Meta:

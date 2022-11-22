@@ -4,7 +4,6 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, viewsets
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,8 +14,7 @@ from users.models import User
 
 from .permissions import (
     AuthorModeratorOrReadOnly,
-    IsAdminOrSuperUser,
-    IsUserProfile
+    IsAdminOrSuperUser
 )
 from .serializers import (
     CommentSerializer,
@@ -65,7 +63,6 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = (IsAdminOrSuperUser,)
     lookup_field = 'username'
-    pagination_class = PageNumberPagination
     search_fields = ('username',)
 
 

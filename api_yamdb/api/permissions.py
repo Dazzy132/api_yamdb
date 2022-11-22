@@ -33,12 +33,3 @@ class IsAdminOrSuperUser(BasePermission):
             request.user.is_authenticated and request.user.role == 'admin'
             or request.user.is_superuser
         )
-
-
-class IsUserProfile(BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return (
-            request.user.is_authenticated and request.user == obj
-            or request.user.role == 'admin'
-            or request.user.is_superuser
-        )
