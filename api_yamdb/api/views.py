@@ -68,26 +68,6 @@ class UserViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     search_fields = ('username',)
 
-    # # при detail True не работает отображение
-    # @action(detail=False,
-    #         methods=['GET', 'PUT', 'PATCH'],
-    #         url_path=r'me',
-    #         permission_classes=[IsUserProfile]
-    #         )
-    # def user_profile(self, request, pk=None):
-    #     user = get_object_or_404(User, username=request.user)
-    #     serializer = self.serializer_class(data=request.data)
-    #     if serializer.is_valid():
-    #         return Response(serializer.data, status=200)
-    #     return Response(serializer.errors, status=400)
-    #
-    # def get_permissions(self):
-    #     permission_classes = [IsUserProfile]
-    #
-    #     # if self.action not in SAFE_METHODS:
-    #     #     permission_classes = [IsAdminOrSuperUser]
-    #     return [permission() for permission in permission_classes]
-
 
 class UserProfileViewSet(APIView):
     """Редактирование профиля."""
