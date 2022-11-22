@@ -1,19 +1,7 @@
 from rest_framework import serializers
 
-from reviews.models import Comment, Genres, Review
+from reviews.models import Comment, Review, Title, Genre, Category
 from users.models import User
-
-
-class GenreSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Genres"""
-
-    class Meta:
-        model = Genres
-        fields = ('slug', 'name')
-        read_only_fields = (
-            'name',
-            'slug',
-        )
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -86,3 +74,36 @@ class TokenSerializer(serializers.ModelSerializer):
             'username',
             'confirmation_code',
         )
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Genre"""
+
+    class Meta:
+        model = Genre
+        fields = ('slug', 'name')
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Title"""
+    genre = serializers.SlugRelatedField(
+        many=True,
+        queryset=Genre.objects.all(),
+        slug_field='slug'
+    )
+    category = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Category.objects.all()
+    )
+
+    class Meta:
+        model = Title
+        fields = ('category', 'genre', 'name', 'year')
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Category"""
+
+    class Meta:
+        model = Category
+        fields = ('name', 'slug')

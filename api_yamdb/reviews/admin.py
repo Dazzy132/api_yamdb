@@ -1,7 +1,7 @@
 from django.contrib import admin
 from typing import NamedTuple
 
-from .models import Category, Genres, Title, GenreTitle, Comment, Review
+from .models import Category, Genre, Title, GenreTitle, Comment, Review
 
 
 class Fields(NamedTuple):
@@ -33,14 +33,14 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display: Fields = ['name', 'slug']
 
 
-@admin.register(Genres)
-class GenresAdmin(admin.ModelAdmin):
+@admin.register(Genre)
+class GenreAdmin(admin.ModelAdmin):
     """Регистрация в admin модели Genres"""
     list_display: Fields = ['name', 'slug']
 
 
 @admin.register(Title)
-class TitlesAdmin(admin.ModelAdmin):
+class TitleAdmin(admin.ModelAdmin):
     """Регистрация в admin модели Title"""
     list_display: Fields = ['name', 'year', 'pub_date', 'category']
     filter_horizontal: Fields = ['genre']

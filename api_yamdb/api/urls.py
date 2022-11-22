@@ -4,13 +4,29 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     ReviewViewSet,
     CommentViewSet,
-    UserViewSet, UserAuthViewSet, UserVerifyToken, UserProfileViewSet)
+    UserViewSet, UserAuthViewSet, UserVerifyToken, UserProfileViewSet,
+    GenreViewSet, TitleViewSet, CategoryViewSet)
 
 router = DefaultRouter()
 
 router.register(
     r'users',
     UserViewSet
+)
+
+router.register(
+    r'genres',
+    GenreViewSet
+)
+
+router.register(
+    r'titles',
+    TitleViewSet
+)
+
+router.register(
+    r'categories',
+    CategoryViewSet
 )
 
 router.register(

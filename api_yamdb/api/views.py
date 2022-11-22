@@ -8,8 +8,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.pagination import PageNumberPagination
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
-from reviews.models import Review, Title
+from reviews.models import Comment, Review, Title, Genre, Category
 from users.models import User
 
 from .permissions import (
@@ -22,6 +25,9 @@ from .serializers import (
     SelfUserSerializer,
     TokenSerializer,
     UserSerializer,
+    TitleSerializer,
+    CategorySerializer,
+    GenreSerializer,
 )
 
 
@@ -155,3 +161,41 @@ class UserVerifyToken(generics.CreateAPIView):
             {'error': 'Введен неправильный код'},
             status=HTTPStatus.BAD_REQUEST
         )
+
+class GenreViewSet(viewsets.ModelViewSet):
+    """Viewset для модели Genre"""
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ('name',)
+    # необходимо переопределить пермишены
+    permission_classes = [IsAdminOrSuperUser]
+    lookup_field = 'slug'
+    pagination_class = PageNumberPagination
+    http_method_names = ['get', 'post', 'delete']
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    """Viewset для модели Title"""
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('category', 'genre', 'name', 'year')
+    # необходимо переопределить пермишены
+    permission_classes = [IsAdminOrSuperUser]
+    lookup_field = 'id'
+    pagination_class = PageNumberPagination
+    http_method_names = ['get', 'post', 'delete', 'patch']
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    """Viewset для модели Category"""
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ('name',)
+    # необходимо переопределить пермишены
+    permission_classes = [IsAdminOrSuperUser]
+    lookup_field = 'slug'
+    pagination_class = PageNumberPagination
+    http_method_names = ['get', 'post', 'delete']
