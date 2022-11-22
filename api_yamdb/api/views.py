@@ -6,8 +6,9 @@ from django.core.mail import send_mail
 from rest_framework import filters
 from .permissions import IsAdminOrSuperUser, IsUserProfile, AuthorOrReadOnly
 from rest_framework.pagination import PageNumberPagination
+from django_filters.rest_framework import DjangoFilterBackend
 
-from reviews.models import Review, Comment, Genre, Title, GenreTitle, Category
+from reviews.models import Review, Comment, Genre, Title, Category
 from .serializers import ReviewSerializer, CommentSerializer, UserSerializer, GenreSerializer, TitleSerializer, CategorySerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
@@ -170,19 +171,20 @@ class TitleViewSet(viewsets.ModelViewSet):
     """Viewset для модели Title"""
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
-    filter_backends = [filters.SearchFilter]
-    # permission_classes = []
-    search_fields = ('name',)
-    lookup_field = 'slug'
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('category', 'genre', 'name', 'year')
+    # необходимо переопределить пермишены
+    permission_classes = [IsAdminOrSuperUser]
+    lookup_field = 'id'
     pagination_class = PageNumberPagination
-    http_method_names = ['get', 'post', 'delete']
+    http_method_names = ['get', 'post', 'delete', 'patch']
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    """Viewset для модели Genre"""
+    """Viewset для модели Category"""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    filter_backends = [filters.SearchFilter]  
+    filter_backends = [filters.SearchFilter]
     search_fields = ('name',)
     # необходимо переопределить пермишены
     permission_classes = [IsAdminOrSuperUser]

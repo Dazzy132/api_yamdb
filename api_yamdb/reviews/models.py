@@ -49,12 +49,12 @@ class Title(models.Model):
     year = models.PositiveSmallIntegerField(
         'Год создания произведения',
         blank=False,
-        default=2022,
         validators=[MaxValueValidator(2022)]
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now=True)
     genre = models.ManyToManyField(
         Genre,
+        blank=False,
         through="GenreTitle"
     )
     category = models.ForeignKey(
