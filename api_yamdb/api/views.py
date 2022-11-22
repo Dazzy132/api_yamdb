@@ -3,17 +3,25 @@ from http import HTTPStatus
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, mixins, viewsets
-from rest_framework.permissions import AllowAny
+from rest_framework import generics, viewsets
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+
 from reviews.models import Review, Title
 from users.models import User
 
-from .permissions import AuthorOrReadOnly, IsAdminOrSuperUser, IsUserProfile
+from .permissions import (
+    AuthorModeratorOrReadOnly,
+    IsAdminOrSuperUser,
+    IsUserProfile
+)
 from .serializers import (
     CommentSerializer,
     ReviewSerializer,
+    SelfUserSerializer,
     TokenSerializer,
     UserSerializer,
 )
@@ -21,7 +29,7 @@ from .serializers import (
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (AuthorOrReadOnly,)
+    permission_classes = (AuthorModeratorOrReadOnly,)
 
     def get_title(self):
         return get_object_or_404(Title, pk=self.kwargs['title_id'])
@@ -35,7 +43,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (AuthorOrReadOnly,)
+    permission_classes = (AuthorModeratorOrReadOnly,)
 
     def get_review(self):
         return get_object_or_404(
@@ -56,8 +64,9 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (IsAdminOrSuperUser,)
-    # Поле по которому можно осуществлять детальный поиск
     lookup_field = 'username'
+    pagination_class = PageNumberPagination
+    search_fields = ('username',)
 
     # # при detail True не работает отображение
     # @action(detail=False,
@@ -80,17 +89,31 @@ class UserViewSet(viewsets.ModelViewSet):
     #     return [permission() for permission in permission_classes]
 
 
-class UserProfileViewSet(
-    viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.UpdateModelMixin
-):
+class UserProfileViewSet(APIView):
     """Редактирование профиля."""
+    queryset = User.objects.all()
+    permission_classes = (IsAuthenticated,)
 
-    serializer_class = UserSerializer
-    permission_classes = (IsUserProfile,)
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
 
-    def get_queryset(self):
-        user = User.objects.get(username=self.request.user)
-        return user
+    def patch(self, request):
+        if request.user.role == 'admin' or request.user.is_superuser:
+            serializer = UserSerializer(
+                request.user,
+                request.data,
+                partial=True)
+        else:
+            serializer = SelfUserSerializer(
+                request.user,
+                request.data,
+                partial=True
+            )
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=HTTPStatus.BAD_REQUEST)
+        serializer.save()
+        return Response(serializer.data, status=HTTPStatus.OK)
 
 
 class UserAuthViewSet(generics.CreateAPIView):
@@ -98,28 +121,27 @@ class UserAuthViewSet(generics.CreateAPIView):
     админ права пользователями) для их полноценной регистрации через отправки
     кода на почту"""
 
-    queryset = User.objects.all()
+    # queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):
-        serializer = UserSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=HTTPStatus.BAD_REQUEST)
-
         email = request.data.get('email')
         username = request.data.get('username')
-
-        # Проверка на то, если пользователь уже зарегистрирован
+        # Проверка на то, что пользователь уже зарегистрирован
         user = User.objects.filter(username=username, email=email)
         if not user.exists():
+            serializer = UserSerializer(data=request.data)
+            if not serializer.is_valid():
+                return Response(
+                    serializer.errors,
+                    status=HTTPStatus.BAD_REQUEST
+                )
             serializer.save()
             user = get_object_or_404(User, username=username, email=email)
         else:
             user = user[0]
-        confirmation_code = default_token_generator.make_token(
-            get_object_or_404(User, username=username, email=email)
-        )
+        confirmation_code = default_token_generator.make_token(user)
         send_mail(
             'Код подтверждения',
             f'Ваш токен: {confirmation_code}',

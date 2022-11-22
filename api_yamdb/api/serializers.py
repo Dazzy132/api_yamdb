@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from reviews.models import Comment, Genres, Review
 from users.models import User
 
@@ -40,6 +41,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+
     def validate_username(self, username):
         if username == 'me':
             raise serializers.ValidationError(
@@ -49,7 +51,29 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        exclude = ['id']
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role',
+        )
+
+
+class SelfUserSerializer(UserSerializer):
+
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role',
+        )
+        read_only_fields = ('role',)
 
 
 class TokenSerializer(serializers.ModelSerializer):
