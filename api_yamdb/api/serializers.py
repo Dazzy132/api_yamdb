@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from rest_framework.exceptions import NotFound
 
 from reviews.models import Comment, Genres, Review
 from users.models import User
@@ -79,10 +80,7 @@ class SelfUserSerializer(UserSerializer):
 
 class TokenSerializer(serializers.ModelSerializer):
     confirmation_code = serializers.CharField()
-    username = serializers.SlugRelatedField(
-        queryset=User.objects.all(),
-        slug_field='username'
-    )
+    username = serializers.CharField()
 
     class Meta:
         model = User
