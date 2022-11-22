@@ -8,12 +8,6 @@ from .views import (
 
 router = DefaultRouter()
 
-# router.register(
-#     r'users/me',
-#     UserProfileViewSet,
-#     basename='user-profile'
-# )
-
 router.register(
     r'users',
     UserViewSet
