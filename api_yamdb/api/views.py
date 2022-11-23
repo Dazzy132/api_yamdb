@@ -16,7 +16,7 @@ from .permissions import AuthorModeratorOrReadOnly, IsAdminOrSuperUser
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
                           SelfUserSerializer, TitleSerializer, TokenSerializer,
-                          UserSerializer)
+                          UserSerializer, TitleSerializerDetail)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -177,6 +177,11 @@ class TitleViewSet(viewsets.ModelViewSet):
     filterset_fields = ('category', 'genre', 'name', 'year')
     lookup_field = 'id'
     http_method_names = ['get', 'post', 'delete', 'patch']
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve' or self.action == 'list':
+            return TitleSerializerDetail
+        return TitleSerializer
 
     def get_permissions(self):
         if self.action in ('list', 'retrieve'):
