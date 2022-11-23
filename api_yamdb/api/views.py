@@ -2,34 +2,21 @@ from http import HTTPStatus
 
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, generics, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.pagination import PageNumberPagination
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
-
-from reviews.models import Comment, Review, Title, Genre, Category
+from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
-from .permissions import (
-    AuthorModeratorOrReadOnly,
-    IsAdminOrSuperUser
-)
-from .serializers import (
-    CommentSerializer,
-    ReviewSerializer,
-    SelfUserSerializer,
-    TokenSerializer,
-    UserSerializer,
-    TitleSerializer,
-    CategorySerializer,
-    GenreSerializer,
-)
+from .permissions import AuthorModeratorOrReadOnly, IsAdminOrSuperUser
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ReviewSerializer,
+                          SelfUserSerializer, TitleSerializer, TokenSerializer,
+                          UserSerializer)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -107,7 +94,6 @@ class UserAuthViewSet(generics.CreateAPIView):
     админ права пользователями) для их полноценной регистрации через отправки
     кода на почту"""
 
-    # queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (AllowAny,)
 
@@ -172,10 +158,7 @@ class GenreViewSet(viewsets.ModelViewSet):
     serializer_class = GenreSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ('name',)
-    # необходимо переопределить пермишены
-    # permission_classes = [AllowAny, IsAdminOrSuperUser]
     lookup_field = 'slug'
-    pagination_class = PageNumberPagination
     http_method_names = ['get', 'post', 'delete']
 
     def get_permissions(self):
@@ -192,10 +175,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('category', 'genre', 'name', 'year')
-    # необходимо переопределить пермишены
-    # permission_classes = [AllowAny, IsAdminOrSuperUser]
     lookup_field = 'id'
-    pagination_class = PageNumberPagination
     http_method_names = ['get', 'post', 'delete', 'patch']
 
     def get_permissions(self):
@@ -212,10 +192,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ('name',)
-    # необходимо переопределить пермишены
-    # permission_classes = [AllowAny, IsAdminOrSuperUser]
     lookup_field = 'slug'
-    pagination_class = PageNumberPagination
     http_method_names = ['get', 'post', 'delete']
 
     def get_permissions(self):

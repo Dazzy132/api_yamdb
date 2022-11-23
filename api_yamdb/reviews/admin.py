@@ -1,7 +1,8 @@
-from django.contrib import admin
 from typing import NamedTuple
 
-from .models import Category, Genre, Title, GenreTitle, Comment, Review
+from django.contrib import admin
+
+from .models import Category, Comment, Genre, GenreTitle, Review, Title
 
 
 class Fields(NamedTuple):
@@ -13,6 +14,7 @@ class Fields(NamedTuple):
     category: str
     genre: str
     slug: str
+    text: str
 
 
 class CommentsInline(admin.TabularInline):
@@ -53,18 +55,18 @@ class TitleAdmin(admin.ModelAdmin):
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     """Модель комментариев в админке"""
-    list_display = ('id', 'text', 'pub_date')
-    readonly_fields = ('pub_date',)
-    search_fields = ('text',)
+    list_display: Fields = ('id', 'text', 'pub_date')
+    readonly_fields: Fields = ('pub_date',)
+    search_fields: Fields = ('text',)
     save_as = True
 
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
     """Модель отзывов в админке"""
-    list_display = ('id', 'text', 'pub_date')
-    readonly_fields = ('pub_date',)
-    search_fields = ('text',)
+    list_display: Fields = ('id', 'text', 'pub_date')
+    readonly_fields: Fields = ('pub_date',)
+    search_fields: Fields = ('text',)
     save_as = True
     inlines = [CommentsInline]
 

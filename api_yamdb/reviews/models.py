@@ -1,10 +1,14 @@
+from datetime import datetime as dt
+
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from users.models import User
 
+current_year = dt.now().year
+
 
 class Category(models.Model):
-    """Категории для произведений"""
+    """Категории для категорий"""
 
     name = models.CharField(
         'Категория произведения',
@@ -44,12 +48,12 @@ class Genre(models.Model):
 class Title(models.Model):
     """Модель для произведений"""
 
-    name = models.CharField(max_length=200)
+    name = models.CharField('Название произведения', max_length=200)
     year = models.PositiveSmallIntegerField(
         'Год создания произведения',
         blank=False,
-        default=2022,
-        validators=[MaxValueValidator(2022)],
+        default=current_year,
+        validators=[MaxValueValidator(current_year)],
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now=True)
     genre = models.ManyToManyField(
@@ -79,7 +83,7 @@ class Title(models.Model):
 
 
 class GenreTitle(models.Model):
-    """Жанры для произведений"""
+    """Жанры для произведений и их жанров"""
 
     title = models.ForeignKey(
         Title,
@@ -102,9 +106,7 @@ class GenreTitle(models.Model):
 class Review(models.Model):
     """Модель отзывов"""
 
-    text = models.TextField(
-        'Текст отзыва',
-    )
+    text = models.TextField('Текст отзыва', blank=False)
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     author = models.ForeignKey(
         User,
@@ -120,11 +122,10 @@ class Review(models.Model):
     )
     score = models.PositiveSmallIntegerField(
         'Оценка',
-        default=0,
         validators=[MinValueValidator(1), MaxValueValidator(10)]
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.text
 
     class Meta:
@@ -142,9 +143,7 @@ class Review(models.Model):
 class Comment(models.Model):
     """Модель комментариев"""
 
-    text = models.TextField(
-        'Комментарий',
-    )
+    text = models.TextField('Комментарий', blank=False)
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     author = models.ForeignKey(
         User,
@@ -159,7 +158,7 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.text
 
     class Meta:
