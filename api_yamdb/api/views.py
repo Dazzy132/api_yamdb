@@ -51,7 +51,9 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_review(self):
         return get_object_or_404(
-            Review, pk=self.kwargs['review_id'], title=self.kwargs['title_id']
+            Review,
+            pk=self.kwargs['review_id'],
+            title_id=self.kwargs['title_id']
         )
 
     def get_queryset(self):
@@ -162,6 +164,7 @@ class UserVerifyToken(generics.CreateAPIView):
             status=HTTPStatus.BAD_REQUEST
         )
 
+
 class GenreViewSet(viewsets.ModelViewSet):
     """Viewset для модели Genre"""
     queryset = Genre.objects.all()
@@ -169,10 +172,17 @@ class GenreViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ('name',)
     # необходимо переопределить пермишены
-    permission_classes = [IsAdminOrSuperUser]
+    # permission_classes = [AllowAny, IsAdminOrSuperUser]
     lookup_field = 'slug'
     pagination_class = PageNumberPagination
     http_method_names = ['get', 'post', 'delete']
+
+    def get_permissions(self):
+        if self.action in ('list', 'retrieve'):
+            permission_classes = (AllowAny,)
+        else:
+            permission_classes = (IsAdminOrSuperUser,)
+        return [permission() for permission in permission_classes]
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -182,10 +192,17 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('category', 'genre', 'name', 'year')
     # необходимо переопределить пермишены
-    permission_classes = [IsAdminOrSuperUser]
+    # permission_classes = [AllowAny, IsAdminOrSuperUser]
     lookup_field = 'id'
     pagination_class = PageNumberPagination
     http_method_names = ['get', 'post', 'delete', 'patch']
+
+    def get_permissions(self):
+        if self.action in ('list', 'retrieve'):
+            permission_classes = (AllowAny,)
+        else:
+            permission_classes = (IsAdminOrSuperUser,)
+        return [permission() for permission in permission_classes]
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -195,7 +212,14 @@ class CategoryViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ('name',)
     # необходимо переопределить пермишены
-    permission_classes = [IsAdminOrSuperUser]
+    # permission_classes = [AllowAny, IsAdminOrSuperUser]
     lookup_field = 'slug'
     pagination_class = PageNumberPagination
     http_method_names = ['get', 'post', 'delete']
+
+    def get_permissions(self):
+        if self.action in ('list', 'retrieve'):
+            permission_classes = (AllowAny,)
+        else:
+            permission_classes = (IsAdminOrSuperUser,)
+        return [permission() for permission in permission_classes]

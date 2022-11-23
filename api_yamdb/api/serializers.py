@@ -12,8 +12,8 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = '__all__'
-        read_only_fields = ('pub_date', 'review', 'author')
+        fields = ('id', 'text', 'author', 'pub_date')
+        read_only_fields = ('id', 'pub_date', 'review', 'author')
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -22,10 +22,21 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
+    def validate(self, attrs):
+        request = self.context['request']
+        title_id = request.parser_context['kwargs']['title_id']
+
+        if Review.objects.filter(
+                author=request.user, title_id=title_id).exists():
+            raise serializers.ValidationError(
+                'Вы не можете оставить повторную рецензию'
+            )
+        return attrs
+
     class Meta:
         model = Review
-        fields = '__all__'
-        read_only_fields = ('pub_date', 'title', 'author')
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        read_only_fields = ('id', 'pub_date', 'title', 'author')
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -98,7 +109,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('category', 'genre', 'name', 'year')
+        fields = ('id', 'category', 'genre', 'name', 'year')
 
 
 class CategorySerializer(serializers.ModelSerializer):

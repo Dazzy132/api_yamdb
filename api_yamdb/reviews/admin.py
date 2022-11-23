@@ -53,7 +53,7 @@ class TitleAdmin(admin.ModelAdmin):
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     """Модель комментариев в админке"""
-    list_display = ('text', 'pub_date')
+    list_display = ('id', 'text', 'pub_date')
     readonly_fields = ('pub_date',)
     search_fields = ('text',)
     save_as = True
@@ -62,7 +62,7 @@ class CommentAdmin(admin.ModelAdmin):
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
     """Модель отзывов в админке"""
-    list_display = ('text', 'pub_date')
+    list_display = ('id', 'text', 'pub_date')
     readonly_fields = ('pub_date',)
     search_fields = ('text',)
     save_as = True
