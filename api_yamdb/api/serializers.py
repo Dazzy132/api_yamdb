@@ -27,11 +27,12 @@ class ReviewSerializer(serializers.ModelSerializer):
         request = self.context['request']
         title_id = request.parser_context['kwargs']['title_id']
 
-        if Review.objects.filter(
-                author=request.user, title_id=title_id).exists():
-            raise serializers.ValidationError(
-                'Вы не можете оставить повторную рецензию'
-            )
+        if request.method not in ('PATCH', 'PUT'):
+            if Review.objects.filter(
+                    author=request.user, title_id=title_id).exists():
+                raise serializers.ValidationError(
+                    'Вы не можете оставить повторную рецензию'
+                )
         return attrs
 
     class Meta:
