@@ -1,3 +1,4 @@
+from django.db.models import Avg
 from rest_framework import serializers
 
 from reviews.models import Comment, Review, Title, Genre, Category
@@ -106,10 +107,17 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='slug',
         queryset=Category.objects.all()
     )
+    rating = serializers.SerializerMethodField(read_only=True)
+
+    def get_rating(self, obj):
+        if obj.reviews.exists():
+            title = obj.reviews.aggregate(rating=Avg('score'))
+            return title['rating']
 
     class Meta:
         model = Title
-        fields = ('id', 'category', 'genre', 'name', 'year')
+        fields = ('id', 'category', 'genre', 'name', 'year', 'rating')
+        read_only_field = ('id', 'rating')
 
 
 class CategorySerializer(serializers.ModelSerializer):

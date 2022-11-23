@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated

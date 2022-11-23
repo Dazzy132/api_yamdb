@@ -42,7 +42,7 @@ class GenreAdmin(admin.ModelAdmin):
 @admin.register(Title)
 class TitleAdmin(admin.ModelAdmin):
     """Регистрация в admin модели Title"""
-    list_display: Fields = ['name', 'year', 'pub_date', 'category']
+    list_display: Fields = ['id', 'name', 'year', 'pub_date', 'category']
     filter_horizontal: Fields = ['genre']
     ordering: Fields = ['name', 'year', 'pub_date', 'category']
     list_per_page: int = 10
