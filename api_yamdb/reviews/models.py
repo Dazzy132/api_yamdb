@@ -72,6 +72,7 @@ class Title(models.Model):
         related_name='titles',
         help_text='Выберите категорию произведения',
     )
+    description = models.TextField('Описание')
 
     def __str__(self) -> str:
         return self.name
