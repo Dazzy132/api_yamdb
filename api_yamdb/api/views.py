@@ -164,9 +164,6 @@ class GenreViewSet(ListCreateDestroy):
     search_fields = ('name',)
     lookup_field = 'slug'
 
-    def retrieve(self, request, *args, **kwargs):
-        raise MethodNotAllowed('retrieve')
-
     def get_permissions(self):
         if self.action in ('list', 'retrieve'):
             permission_classes = (AllowAny,)
