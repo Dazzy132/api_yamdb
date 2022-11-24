@@ -12,7 +12,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
-from .permissions import AuthorModeratorOrReadOnly, IsAdminOrSuperUser
+from .permissions import AuthorModeratorOrReadOnly, IsAdminOrSuperUser, GetAnyOrIsAdminSuperUser
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
                           SelfUserSerializer, TitleSerializer,
@@ -162,13 +162,7 @@ class GenreViewSet(ListCreateDestroy):
     filter_backends = [filters.SearchFilter]
     search_fields = ('name',)
     lookup_field = 'slug'
-
-    def get_permissions(self):
-        if self.action in ('list', 'retrieve'):
-            permission_classes = (AllowAny,)
-        else:
-            permission_classes = (IsAdminOrSuperUser,)
-        return [permission() for permission in permission_classes]
+    permission_classes = (GetAnyOrIsAdminSuperUser,)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -178,18 +172,12 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     lookup_field = 'id'
     filterset_class = TitleFilter
+    permission_classes = (GetAnyOrIsAdminSuperUser,)
 
     def get_serializer_class(self):
         if self.action in ('retrieve', 'list'):
             return TitleSerializerDetail
         return TitleSerializer
-
-    def get_permissions(self):
-        if self.action in ('list', 'retrieve'):
-            permission_classes = (AllowAny,)
-        else:
-            permission_classes = (IsAdminOrSuperUser,)
-        return [permission() for permission in permission_classes]
 
 
 class CategoryViewSet(ListCreateDestroy):
@@ -199,10 +187,4 @@ class CategoryViewSet(ListCreateDestroy):
     filter_backends = [filters.SearchFilter]
     search_fields = ('name',)
     lookup_field = 'slug'
-
-    def get_permissions(self):
-        if self.action in ('list', 'retrieve'):
-            permission_classes = (AllowAny,)
-        else:
-            permission_classes = (IsAdminOrSuperUser,)
-        return [permission() for permission in permission_classes]
+    permission_classes = (GetAnyOrIsAdminSuperUser,)

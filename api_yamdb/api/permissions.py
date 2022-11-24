@@ -32,8 +32,8 @@ class IsAdminOrSuperUser(BasePermission):
         )
 
 
-class AllowAnyOrIsAdminOrSuperUser(BasePermission):
-    """Test"""
+class  GetAnyOrIsAdminSuperUser(BasePermission):
+    """GET разрешен для всех юзеров, остальные методы только для админа и суперюзера"""
     def has_permission(self, request, view):
         if request.method in SAFE_METHODS:
             return True
