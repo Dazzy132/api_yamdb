@@ -12,7 +12,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
-from .permissions import AuthorModeratorOrReadOnly, IsAdminOrSuperUser, GetAnyOrIsAdminSuperUser
+from .permissions import AuthorModeratorOrReadOnly, IsAdminOrSuperUser, IsAdminOrReadOnly
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
                           SelfUserSerializer, TitleSerializer,
@@ -162,7 +162,7 @@ class GenreViewSet(ListCreateDestroy):
     filter_backends = [filters.SearchFilter]
     search_fields = ('name',)
     lookup_field = 'slug'
-    permission_classes = (GetAnyOrIsAdminSuperUser,)
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -172,7 +172,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     lookup_field = 'id'
     filterset_class = TitleFilter
-    permission_classes = (GetAnyOrIsAdminSuperUser,)
+    permission_classes = (IsAdminOrReadOnly,)
 
     def get_serializer_class(self):
         if self.action in ('retrieve', 'list'):
@@ -187,4 +187,4 @@ class CategoryViewSet(ListCreateDestroy):
     filter_backends = [filters.SearchFilter]
     search_fields = ('name',)
     lookup_field = 'slug'
-    permission_classes = (GetAnyOrIsAdminSuperUser,)
+    permission_classes = (IsAdminOrReadOnly,)
