@@ -33,7 +33,7 @@ class IsAdminOrSuperUser(BasePermission):
         )
 
 
-class  IsAdminOrReadOnly(BasePermission):
+class IsAdminOrReadOnly(BasePermission):
     """GET разрешен для всех юзеров, остальные методы только для админа и
      суперпользователя"""
     def has_permission(self, request, view):
