@@ -1,6 +1,7 @@
 from django.db.models import Avg
 from rest_framework import serializers
-from reviews.models import Category, Comment, Genre, Review, Title, GenreTitle
+
+from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
 
@@ -62,7 +63,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class SelfUserSerializer(UserSerializer):
-
     class Meta:
         model = User
         fields = (
@@ -97,7 +97,6 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Category
         fields = ('name', 'slug')
@@ -120,19 +119,6 @@ class TitleSerializer(serializers.ModelSerializer):
         if obj.reviews.exists():
             title = obj.reviews.aggregate(rating=Avg('score'))
             return title['rating']
-
-    # def create(self, validated_data):
-    #     cat = validated_data.pop('category')
-    #     genres = validated_data.pop('genre')
-    #
-    #     category = Category.objects.get_or_create(**cat)
-    #     title = Title.objects.create(**validated_data, category_id=category[0].pk)
-    #
-    #     for genre in genres:
-    #         curr_genre, status = Genre.objects.get_or_create(**genre)
-    #         GenreTitle.objects.create(title=title, genre=curr_genre)
-    #
-    #     return title
 
     class Meta:
         model = Title

@@ -5,6 +5,7 @@ from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, generics, viewsets
+from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,8 +16,10 @@ from users.models import User
 from .permissions import AuthorModeratorOrReadOnly, IsAdminOrSuperUser
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
-                          SelfUserSerializer, TitleSerializer, TokenSerializer,
-                          UserSerializer, TitleSerializerDetail)
+                          SelfUserSerializer, TitleSerializer,
+                          TitleSerializerDetail, TokenSerializer,
+                          UserSerializer)
+from .utils import ListCreateDestroy, TitleFilter
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -152,14 +155,16 @@ class UserVerifyToken(generics.CreateAPIView):
         )
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(ListCreateDestroy):
     """Viewset для модели Genre"""
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ('name',)
     lookup_field = 'slug'
-    http_method_names = ['get', 'post', 'delete']
+
+    def retrieve(self, request, *args, **kwargs):
+        raise MethodNotAllowed('retrieve')
 
     def get_permissions(self):
         if self.action in ('list', 'retrieve'):
@@ -174,9 +179,8 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('category__slug', 'genre__slug', 'name', 'year')
     lookup_field = 'id'
-    http_method_names = ['get', 'post', 'delete', 'patch']
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.action in ('retrieve', 'list'):
@@ -191,14 +195,13 @@ class TitleViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(ListCreateDestroy):
     """Viewset для модели Category"""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ('name',)
     lookup_field = 'slug'
-    http_method_names = ['get', 'post', 'delete']
 
     def get_permissions(self):
         if self.action in ('list', 'retrieve'):
