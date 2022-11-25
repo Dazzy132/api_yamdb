@@ -11,7 +11,7 @@ router.register(r'users', UserViewSet)
 
 router.register(r'genres', GenreViewSet)
 
-router.register(r'titles', TitleViewSet)
+router.register(r'titles', TitleViewSet, basename='titles')
 
 router.register(r'categories', CategoryViewSet)
 

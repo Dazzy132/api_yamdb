@@ -1,3 +1,5 @@
+from django.db.models import Avg
+
 from api.permissions import AuthorModeratorOrReadOnly, IsAdminOrReadOnly
 
 from django.shortcuts import get_object_or_404
@@ -58,12 +60,20 @@ class GenreViewSet(ListCreateDestroy):
 
 class TitleViewSet(viewsets.ModelViewSet):
     """Viewset для модели Title"""
-    queryset = Title.objects.all()
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     lookup_field = 'id'
     filterset_class = TitleFilter
     permission_classes = (IsAdminOrReadOnly,)
+
+    def get_queryset(self):
+        return (
+            Title.objects
+            .annotate(rating=Avg('reviews__score'))
+            .select_related('category')
+            .prefetch_related('genre')
+            .order_by('pk')
+        )
 
     def get_serializer_class(self):
         if self.action in ('retrieve', 'list'):
