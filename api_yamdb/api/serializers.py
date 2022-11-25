@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
+import re
 
 
 class ValueFromViewKeyWordArgumentsDefault:
@@ -48,6 +49,12 @@ class ReviewSerializer(serializers.ModelSerializer):
         default=ValueFromViewKeyWordArgumentsDefault('title_id')
     )
 
+    # title = serializers.SlugRelatedField(
+    #     slug_field='name',
+    #     default=Title.objects.all(),
+    #     read_only=True
+    # )
+
     def create(self, validated_data):
         title = get_object_or_404(Title, pk=validated_data.pop('title'))
         review = Review.objects.create(**validated_data, title=title)
@@ -68,12 +75,18 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
 
-    def validate_username(self, username):
-        if username == 'me':
-            raise serializers.ValidationError(
-                'Использовать "me" в качестве username запрещено.'
-            )
-        return username
+    # def validate_username(self, username):
+    #     if username.lower() == 'me':
+    #         raise serializers.ValidationError(
+    #             'Использовать "me" в качестве username запрещено.'
+    #         )
+    #
+    #     result = re.findall(r'[^\w-]', username)
+    #     if result:
+    #         raise serializers.ValidationError(
+    #             f'Не используйте {", ".join(_ for _ in result)} в username!'
+    #         )
+    #     return username
 
     class Meta:
         model = User
