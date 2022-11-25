@@ -86,8 +86,7 @@ class UserProfileViewSet(APIView):
                 request.data,
                 partial=True
             )
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=HTTPStatus.BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=HTTPStatus.OK)
 
@@ -107,11 +106,7 @@ class UserAuthViewSet(generics.CreateAPIView):
         user = User.objects.filter(username=username, email=email)
         if not user.exists():
             serializer = UserSerializer(data=request.data)
-            if not serializer.is_valid():
-                return Response(
-                    serializer.errors,
-                    status=HTTPStatus.BAD_REQUEST
-                )
+            serializer.is_valid(raise_exception=True)
             serializer.save()
             user = get_object_or_404(User, username=username, email=email)
         else:
@@ -139,8 +134,7 @@ class UserVerifyToken(generics.CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         serializer = TokenSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=HTTPStatus.BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
         user = get_object_or_404(User, username=request.data.get('username'))
         confirmation_code = request.data.get('confirmation_code')
 
