@@ -2,9 +2,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from reviews.models import Review, Title
 from users.permissions import (
-    IsAuthorOrReadOnly,
-    IsModeratorOrReadOnly,
-    IsAdminOrReadOnly,
+    IsAuthorOrAuthReadOnly,
+    IsModeratorOrAuthReadOnly,
+    IsAdminOrAuthReadOnly,
 )
 
 from .serializers import CommentSerializer, ReviewSerializer
@@ -13,7 +13,7 @@ from .serializers import CommentSerializer, ReviewSerializer
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = [
-        IsAuthorOrReadOnly | IsModeratorOrReadOnly | IsAdminOrReadOnly
+        IsAuthorOrAuthReadOnly | IsModeratorOrAuthReadOnly | IsAdminOrAuthReadOnly
     ]
 
     def get_title(self):
@@ -29,7 +29,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [
-        IsAuthorOrReadOnly | IsModeratorOrReadOnly | IsAdminOrReadOnly
+        IsAuthorOrAuthReadOnly | IsModeratorOrAuthReadOnly | IsAdminOrAuthReadOnly
     ]
 
     def get_review(self):

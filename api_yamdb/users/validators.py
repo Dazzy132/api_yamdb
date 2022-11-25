@@ -16,5 +16,3 @@ def validate_username(username):
             f'Не используйте \'{" ".join(_ for _ in set(result))}\' в нике!'
         )
     return username
-
-

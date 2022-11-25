@@ -2,7 +2,7 @@ from rest_framework.permissions import (SAFE_METHODS, BasePermission,
                                         IsAuthenticatedOrReadOnly)
 
 
-class IsAuthorOrReadOnly(IsAuthenticatedOrReadOnly):
+class IsAuthorOrAuthReadOnly(IsAuthenticatedOrReadOnly):
     """Пользователи могут просматривать содержимое, но
     взаимодействовать с ним может только автор"""
 
@@ -10,10 +10,11 @@ class IsAuthorOrReadOnly(IsAuthenticatedOrReadOnly):
         return (
             request.method in SAFE_METHODS
             or obj.author == request.user
+            or request.user.is_superuser
         )
 
 
-class IsModeratorOrReadOnly(IsAuthenticatedOrReadOnly):
+class IsModeratorOrAuthReadOnly(IsAuthenticatedOrReadOnly):
     """Кто угодно может просматривать содержимое, но
     взаимодействовать с ним может только модератор"""
 
@@ -21,10 +22,11 @@ class IsModeratorOrReadOnly(IsAuthenticatedOrReadOnly):
         return (
             request.method in SAFE_METHODS
             or request.user.is_moderator
+            or request.user.is_superuser
         )
 
 
-class IsAdminOrReadOnly(IsAuthenticatedOrReadOnly):
+class IsAdminOrAuthReadOnly(IsAuthenticatedOrReadOnly):
     """Кто угодно может просматривать содержимое, но
     взаимодействовать с ним может только админ"""
 
@@ -32,6 +34,18 @@ class IsAdminOrReadOnly(IsAuthenticatedOrReadOnly):
         return (
             request.method in SAFE_METHODS
             or request.user.is_admin
+            or request.user.is_superuser
+        )
+
+
+class IsAdminOrReadOnly(BasePermission):
+    """GET разрешен для всех юзеров, остальные методы только для админа и
+     суперпользователя"""
+    def has_permission(self, request, view):
+        return (
+            request.method in SAFE_METHODS
+            or request.user.is_authenticated and request.user.is_admin
+            or request.user.is_superuser
         )
 
 
@@ -48,16 +62,5 @@ class IsAdminOrSuperUser(BasePermission):
     def has_object_permission(self, request, view, obj):
         return (
             request.user.is_authenticated and request.user.is_admin
-            or request.user.is_superuser
-        )
-
-
-class IsAdminOrReadOnly(BasePermission):
-    """GET разрешен для всех юзеров, остальные методы только для админа и
-     суперпользователя"""
-    def has_permission(self, request, view):
-        return (
-            request.method in SAFE_METHODS or
-            request.user.is_authenticated and request.user.role == 'admin'
             or request.user.is_superuser
         )
