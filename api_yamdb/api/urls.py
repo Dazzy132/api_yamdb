@@ -1,9 +1,10 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from reviews.views import (CategoryViewSet, CommentViewSet, GenreViewSet,
-                           ReviewViewSet, TitleViewSet)
+from reviews.views import CategoryViewSet, GenreViewSet, TitleViewSet
 from users.views import (UserAuthViewSet, UserProfileViewSet, UserVerifyToken,
                          UserViewSet)
+
+from .views import CommentViewSet, ReviewViewSet
 
 router = DefaultRouter()
 

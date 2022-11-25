@@ -1,51 +1,12 @@
 from django.db.models import Avg
-
-from api.permissions import AuthorModeratorOrReadOnly, IsAdminOrReadOnly
-
-from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, viewsets
+from users.permissions import IsAdminOrReadOnly
 
-from .models import Category, Genre, Review, Title
-from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer, TitleSerializer,
+from .models import Category, Genre, Title
+from .serializers import (CategorySerializer, GenreSerializer, TitleSerializer,
                           TitleSerializerDetail)
 from .utils import ListCreateDestroy, TitleFilter
-
-
-class ReviewViewSet(viewsets.ModelViewSet):
-    serializer_class = ReviewSerializer
-    permission_classes = (AuthorModeratorOrReadOnly,)
-
-    def get_title(self):
-        return get_object_or_404(Title, pk=self.kwargs['title_id'])
-
-    def get_queryset(self):
-        return self.get_title().reviews.select_related('author', 'title')
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user, title_id=self.get_title().pk)
-
-
-class CommentViewSet(viewsets.ModelViewSet):
-    serializer_class = CommentSerializer
-    permission_classes = (AuthorModeratorOrReadOnly,)
-
-    def get_review(self):
-        return get_object_or_404(
-            Review,
-            pk=self.kwargs['review_id'],
-            title_id=self.kwargs['title_id']
-        )
-
-    def get_queryset(self):
-        return self.get_review().comments.select_related('author', 'review')
-
-    def perform_create(self, serializer):
-        serializer.save(
-            author=self.request.user,
-            review_id=self.get_review().pk
-        )
 
 
 class GenreViewSet(ListCreateDestroy):
