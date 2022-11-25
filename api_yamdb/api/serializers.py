@@ -5,17 +5,6 @@ from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
 
-
-class EagerLoadingMixin:
-    """Класс для оптимизации запросов к БД"""
-    @classmethod
-    def setup_fast_loading(cls, queryset):
-        if hasattr(cls, "select_related_fields"):
-            queryset = queryset.select_related(*cls.select_related_fields)
-        if hasattr(cls, "prefetch_related_fields"):
-            queryset = queryset.prefetch_related(*cls.prefetch_related_fields)
-        return queryset
-
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username',
@@ -113,7 +102,7 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ('name', 'slug')
 
 
-class TitleSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+class TitleSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Title"""
     genre = serializers.SlugRelatedField(
         many=True,
@@ -125,7 +114,6 @@ class TitleSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         queryset=Category.objects.all()
     )
     rating = serializers.SerializerMethodField(read_only=True)
-    select_related_fields = ('category', 'genre',)
 
     def get_rating(self, obj):
         if obj.reviews.exists():
@@ -139,7 +127,6 @@ class TitleSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         read_only_field = ('id', 'rating')
 
 
-class TitleSerializerDetail(TitleSerializer, EagerLoadingMixin):
+class TitleSerializerDetail(TitleSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(read_only=True, many=True)
-    select_related_fields = ('category', 'genre',)

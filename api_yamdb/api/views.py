@@ -167,7 +167,7 @@ class GenreViewSet(ListCreateDestroy):
 
 class TitleViewSet(viewsets.ModelViewSet):
     """Viewset для модели Title"""
-    queryset = Title.objects.all()
+    queryset = Title.objects.select_related('category').prefetch_related('genre')
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     lookup_field = 'id'
