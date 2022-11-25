@@ -13,7 +13,9 @@ from .serializers import CommentSerializer, ReviewSerializer
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = [
-        IsAuthorOrAuthReadOnly | IsModeratorOrAuthReadOnly | IsAdminOrAuthReadOnly
+        IsAuthorOrAuthReadOnly
+        | IsModeratorOrAuthReadOnly
+        | IsAdminOrAuthReadOnly
     ]
 
     def get_title(self):
@@ -29,7 +31,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [
-        IsAuthorOrAuthReadOnly | IsModeratorOrAuthReadOnly | IsAdminOrAuthReadOnly
+        IsAuthorOrAuthReadOnly
+        | IsModeratorOrAuthReadOnly
+        | IsAdminOrAuthReadOnly
     ]
 
     def get_review(self):
