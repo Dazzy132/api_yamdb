@@ -4,7 +4,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from users.models import User
 
-current_year = dt.now().year
+from .validators import validate_year
 
 
 class Category(models.Model):
@@ -52,8 +52,7 @@ class Title(models.Model):
     year = models.PositiveSmallIntegerField(
         'Год создания произведения',
         blank=False,
-        default=current_year,
-        validators=[MaxValueValidator(current_year)],
+        validators=[validate_year],
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now=True)
     genre = models.ManyToManyField(
