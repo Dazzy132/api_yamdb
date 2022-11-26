@@ -3,14 +3,21 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from .validators import validate_username
+from dataclasses import dataclass
 
 
 class User(AbstractUser):
 
-    ROLES = (
-        ('user', 'Аутентифицированный пользователь'),
-        ('moderator', 'Модератор'),
-        ('admin', 'Администратор'),
+    @dataclass
+    class UserRole:
+        USER = 'user'
+        MODERATOR = 'moderator'
+        ADMIN = 'admin'
+
+    USER_ROLES = (
+        (UserRole.USER, 'Аутентифицированный пользователь'),
+        (UserRole.MODERATOR, 'Модератор'),
+        (UserRole.ADMIN, 'Администратор'),
     )
 
     username = models.CharField(
@@ -22,11 +29,11 @@ class User(AbstractUser):
             'unique': _("A user with that username already exists."),
         },
     )
-    email = models.EmailField('email address', unique=True)
+    email = models.EmailField(_('email address'), unique=True)
     bio = models.TextField('Биография', blank=True)
     role = models.CharField(
         'Пользовательская роль',
-        choices=ROLES,
+        choices=USER_ROLES,
         default='user',
         max_length=30,
     )
@@ -41,8 +48,8 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.role == 'admin'
+        return self.role == self.UserRole.ADMIN
 
     @property
     def is_moderator(self):
-        return self.role == 'moderator'
+        return self.role == self.UserRole.MODERATOR

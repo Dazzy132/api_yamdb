@@ -18,19 +18,6 @@ class ValueFromViewKeyWordArgumentsDefault:
         return serializer_field.context.get('view').kwargs.get(self.key)
 
 
-class CommentSerializer(serializers.ModelSerializer):
-    """Сериализатор для комментариев к рецензиям"""
-    author = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True
-    )
-
-    class Meta:
-        model = Comment
-        fields = ('id', 'text', 'author', 'pub_date')
-        read_only_fields = ('id', 'pub_date', 'review', 'author')
-
-
 class ReviewSerializer(serializers.ModelSerializer):
     """Сериализатор для рецензий на произведения"""
     author = serializers.SlugRelatedField(
@@ -58,3 +45,16 @@ class ReviewSerializer(serializers.ModelSerializer):
                 message='Вы не можете оставить повторную рецензию',
             )
         ]
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    """Сериализатор для комментариев к рецензиям"""
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
+
+    class Meta:
+        model = Comment
+        fields = ('id', 'text', 'author', 'pub_date')
+        read_only_fields = ('id', 'pub_date', 'review', 'author')

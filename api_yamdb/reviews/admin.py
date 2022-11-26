@@ -2,7 +2,7 @@ from typing import NamedTuple
 
 from django.contrib import admin
 
-from .models import Category, Comment, Genre, GenreTitle, Review, Title
+from .models import Category, Comment, Genre, Review, Title, GenreTitle
 
 
 class Fields(NamedTuple):
@@ -33,12 +33,14 @@ class ReviewsInline(admin.TabularInline):
 class CategoryAdmin(admin.ModelAdmin):
     """Регистрация в admin модели Category"""
     list_display: Fields = ['name', 'slug']
+    prepopulated_fields = {'slug': ('name',)}
 
 
 @admin.register(Genre)
 class GenreAdmin(admin.ModelAdmin):
     """Регистрация в admin модели Genres"""
     list_display: Fields = ['name', 'slug']
+    prepopulated_fields = {'slug': ('name',)}
 
 
 @admin.register(Title)
