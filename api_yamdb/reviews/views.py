@@ -1,7 +1,7 @@
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, viewsets
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from users.permissions import IsAdminOrReadOnly
 
 from .models import Category, Genre, Title
@@ -18,7 +18,6 @@ class GenreViewSet(ListCreateDestroy):
     search_fields = ('name',)
     lookup_field = 'slug'
     permission_classes = (IsAuthenticatedOrReadOnly, IsAdminOrReadOnly,)
-
 
 
 class TitleViewSet(viewsets.ModelViewSet):
