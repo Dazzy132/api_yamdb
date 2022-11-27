@@ -1,21 +1,13 @@
-from datetime import datetime as dt
-
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
 from users.models import User
+from .abstract_models import BaseModelUnique, BaseModelReview
+from .validators import validate_year
 
-current_year = dt.now().year
 
-
-class Category(models.Model):
+class Category(BaseModelUnique):
     """Категории для категорий"""
-
-    name = models.CharField(
-        'Категория произведения',
-        max_length=400,
-        help_text='Выберите категорию произведения',
-    )
-    slug = models.SlugField('Адрес категории произведения', unique=True)
 
     def __str__(self) -> str:
         return self.slug
@@ -26,15 +18,8 @@ class Category(models.Model):
         ordering = ('pk',)
 
 
-class Genre(models.Model):
+class Genre(BaseModelUnique):
     """Модель для жанров"""
-
-    slug = models.SlugField('Адрес жанра произведения', unique=True)
-    name = models.CharField(
-        'Жанр произведения',
-        max_length=200,
-        help_text='Выберите жанр произведения'
-    )
 
     def __str__(self) -> str:
         return self.slug
@@ -52,8 +37,7 @@ class Title(models.Model):
     year = models.PositiveSmallIntegerField(
         'Год создания произведения',
         blank=False,
-        default=current_year,
-        validators=[MaxValueValidator(current_year)],
+        validators=[validate_year],
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now=True)
     genre = models.ManyToManyField(
@@ -104,11 +88,9 @@ class GenreTitle(models.Model):
         verbose_name_plural: str = 'Жанры и произведения'
 
 
-class Review(models.Model):
+class Review(BaseModelReview):
     """Модель отзывов"""
 
-    text = models.TextField('Текст отзыва', blank=False)
-    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     author = models.ForeignKey(
         User,
         related_name='reviews',
@@ -141,11 +123,9 @@ class Review(models.Model):
         ]
 
 
-class Comment(models.Model):
+class Comment(BaseModelReview):
     """Модель комментариев"""
 
-    text = models.TextField('Комментарий', blank=False)
-    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     author = models.ForeignKey(
         User,
         related_name='comments',

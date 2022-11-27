@@ -1,21 +1,6 @@
 import django_filters
-from django.db import models
 from rest_framework import mixins, viewsets
-from reviews.models import Title
-
-
-class BaseModel(models.Model):
-
-    class Meta:
-        abstract = True
-
-
-class BaseModelUnique(models.Model):
-    name = models.CharField('Название', max_length=150)
-    slug = models.SlugField('slug', unique=True)
-
-    class Meta:
-        abstract = True
+from .models import Title
 
 
 class ListCreateDestroy(mixins.ListModelMixin,

@@ -1,9 +1,47 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth import password_validation
 
 from .validators import validate_username
 from dataclasses import dataclass
+from django.contrib.auth.models import BaseUserManager
+
+
+class CustomUserManager(BaseUserManager):
+    use_in_migrations = True
+
+    def _create_user(self, email, username, **extra_fields):
+        if not email:
+            raise ValueError('Введите адрес своей электронной почты')
+        if not username:
+            raise ValueError('Введите username')
+        email = self.normalize_email(email)
+        username = self.model.normalize_username(username)
+        if extra_fields.get('role') in (User.UserRole.ADMIN,
+                                        User.UserRole.MODERATOR):
+            extra_fields.update({'is_staff': True})
+        user = self.model(email=email, username=username, **extra_fields)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, email, username, **extra_fields):
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        extra_fields.setdefault('role', User.UserRole.USER)
+        return self._create_user(email, username, **extra_fields)
+
+    def create_superuser(self, email, username, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('role', User.UserRole.ADMIN)
+        # if extra_fields.get('role') != User.UserRole.ADMIN:
+        #     raise ValueError('Суперпользователь должен быть с группой админа!')
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+        return self._create_user(email, username, **extra_fields)
 
 
 class User(AbstractUser):
@@ -38,6 +76,8 @@ class User(AbstractUser):
         max_length=30,
     )
 
+    objects = CustomUserManager()
+
     class Meta:
         ordering = ('pk',)
         verbose_name = 'Пользователь'
@@ -45,6 +85,14 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    def save(self, *args, **kwargs):
+        if self._password is not None:
+            password_validation.password_changed(self._password, self)
+            self._password = None
+        if self.role in (self.UserRole.MODERATOR, self.UserRole.ADMIN):
+            self.is_staff = True
+        super().save(*args, **kwargs)
 
     @property
     def is_admin(self):
