@@ -19,18 +19,11 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
 
-class SelfUserSerializer(UserSerializer):
+class SignUpSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
-        fields = (
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-            'bio',
-            'role',
-        )
-        read_only_fields = ('role',)
+        fields = ('username', 'email')
 
 
 class TokenSerializer(serializers.ModelSerializer):

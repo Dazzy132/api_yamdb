@@ -2,16 +2,17 @@ from http import HTTPStatus
 
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
 from .permissions import IsAdminOrSuperUser
-from .serializers import SelfUserSerializer, UserSerializer, TokenSerializer
+from .serializers import UserSerializer, TokenSerializer, SignUpSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -22,30 +23,23 @@ class UserViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
     search_fields = ('username',)
 
-
-class UserProfileViewSet(APIView):
-    """Редактирование профиля."""
-    queryset = User.objects.all()
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request):
-        serializer = UserSerializer(request.user)
-        return Response(serializer.data)
-
-    def patch(self, request):
-        if request.user.is_admin or request.user.is_superuser:
-            serializer = UserSerializer(
-                request.user,
-                request.data,
-                partial=True)
+    @action(
+        methods=['GET', 'PATCH'],
+        detail=False,
+        permission_classes=(IsAuthenticated,),
+        url_path='me',
+    )
+    def me(self, request):
+        if request.method == 'GET':
+            serializer = self.get_serializer(request.user)
         else:
-            serializer = SelfUserSerializer(
+            serializer = self.get_serializer(
                 request.user,
-                request.data,
+                data=request.data,
                 partial=True
             )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+            serializer.is_valid(raise_exception=True)
+            serializer.save(role=request.user.role, partial=True)
         return Response(serializer.data, status=HTTPStatus.OK)
 
 
@@ -54,10 +48,15 @@ class UserProfileViewSet(APIView):
 def sign_up(request):
     """Функция для регистрации/авторизации пользователей для последующей
     отправки кода им на почту."""
-    serializer = UserSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    # Получить или создать пользователя '_' - когда имя переменной неважно
-    user, _ = User.objects.get_or_create(**serializer.validated_data)
+    user = User.objects.filter(**request.data)
+    if not user.exists():
+        serializer = SignUpSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        user = get_object_or_404(User, username=request.data.get('username'))
+    else:
+        user = user[0]
+        serializer = SignUpSerializer(user)
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
         'Код подтверждения',
@@ -76,5 +75,8 @@ def get_token(request):
     этому проще реализовать это через декораторы и функцию"""
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    token = RefreshToken.for_user(request.user).access_token
+    user = get_object_or_404(
+        User, username=serializer.validated_data.get('username')
+    )
+    token = RefreshToken.for_user(user).access_token
     return Response({'token': str(token)}, status=HTTPStatus.OK)

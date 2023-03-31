@@ -1,8 +1,12 @@
 from typing import NamedTuple
 
+from django.apps import apps
 from django.contrib import admin
 
-from .models import Category, Comment, Genre, Review, Title, GenreTitle
+from .models import Category, Comment, Genre, Review, Title
+
+# Нужно изменить название модели
+GenreTitle = apps.get_model(app_label='reviews', model_name='title_genre')
 
 
 class Fields(NamedTuple):
@@ -77,3 +81,5 @@ class ReviewAdmin(admin.ModelAdmin):
 class GenreTitleAdmin(admin.ModelAdmin):
     """Регистрация в admin модели Genres"""
     list_display: Fields = ['title', 'genre']
+    class Meta:
+        verbose_name = 'fds'

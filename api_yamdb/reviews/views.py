@@ -23,7 +23,6 @@ class TitleViewSet(viewsets.ModelViewSet):
     """Viewset для модели Title"""
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
-    lookup_field = 'id'
     filterset_class = TitleFilter
     permission_classes = (IsAdminOrReadOnly,)
 
@@ -33,7 +32,7 @@ class TitleViewSet(viewsets.ModelViewSet):
             .annotate(rating=Avg('reviews__score'))
             .select_related('category')
             .prefetch_related('genre')
-            .order_by('pk')
+            .order_by('-pub_date')
         )
 
     def get_serializer_class(self):

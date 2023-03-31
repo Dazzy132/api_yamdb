@@ -42,7 +42,7 @@ class Title(models.Model):
     pub_date = models.DateTimeField('Дата публикации', auto_now=True)
     genre = models.ManyToManyField(
         Genre,
-        through="GenreTitle",
+        # through="GenreTitle",
         verbose_name='Жанр произведения',
         related_name='titles',
         blank=False
@@ -67,25 +67,25 @@ class Title(models.Model):
         ordering = ('pk',)
 
 
-class GenreTitle(models.Model):
-    """Жанры для произведений и их жанров"""
-
-    title = models.ForeignKey(
-        Title,
-        blank=False,
-        null=True,
-        on_delete=models.SET_NULL
-    )
-    genre = models.ForeignKey(
-        Genre,
-        blank=False,
-        null=True,
-        on_delete=models.SET_NULL
-    )
-
-    class Meta:
-        verbose_name: str = 'Жанр и Произведение'
-        verbose_name_plural: str = 'Жанры и произведения'
+# class GenreTitle(models.Model):
+#     """Жанры для произведений и их жанров"""
+#
+#     title = models.ForeignKey(
+#         Title,
+#         blank=False,
+#         null=True,
+#         on_delete=models.SET_NULL
+#     )
+#     genre = models.ForeignKey(
+#         Genre,
+#         blank=False,
+#         null=True,
+#         on_delete=models.SET_NULL
+#     )
+#
+#     class Meta:
+#         verbose_name: str = 'Жанр и Произведение'
+#         verbose_name_plural: str = 'Жанры и произведения'
 
 
 class Review(BaseModelReview):
